@@ -1,11 +1,10 @@
             TTL Program Title for Listing Header Goes Here
 ;****************************************************************
-;Descriptive comment header goes here.
-;(What does the program do?)
-;Name:  <Your name here>
-;Date:  <Date completed here>
+;This program implements a division algorithm as an assembly subroutine.
+;Name:  Vaania Khan
+;Date:  2026-02-11
 ;Class:  CMPE-250
-;Section:  <Your lab section, day, and time here>
+;Section:  01, Thursday 2:00 PM
 ;---------------------------------------------------------------
 ;Keil Simulator Template for KL05
 ;R. W. Melton
@@ -143,6 +142,44 @@ main
 ;Initialize registers
             BL      RegInit
 ;>>>>> begin main program code <<<<<
+
+			; Call to subroutines in given library
+			;BL	InitData
+MainLoop	;BL	LoadData
+			
+;			BCS Quit		; If carry flag set, quit     
+			
+			LDR R1, =P
+			LDR R0, =Q
+			LDR R1, [R1, #0]
+			LDR R0, [R0, #0]
+			
+			BL DIVU
+		
+			BCS		DIVU_Error
+			
+			LDR R3, =P
+			LDR R2, =Q
+			
+			STR		R0, [R2, #0]
+			STR		R1, [R3, #0]
+				
+			;BL TestData
+			
+			B MainLoop
+			
+DIVU_Error
+			LDR		R2, =0xFFFFFFFF
+			MSR     APSR_nzcvq, R2
+			POP     {R2, R3}
+			BX      LR
+			ENDP
+
+Quit	
+			BX LR
+			ENDP
+  
+
 ;>>>>>   end main program code <<<<<
 ;Stay here
             B       .
@@ -184,6 +221,33 @@ RegInit     PROC  {}
             ENDP    ;RegInit
 ;---------------------------------------------------------------
 ;>>>>> begin subroutine code <<<<<
+DIVU		PROC {}
+	
+			PUSH    {R2, R3}
+	
+			CMP     R0, #0         
+			BEQ     DIVU_Error
+
+			MOVS    R2, R0           
+			MOVS    R3, R1     
+			 
+			CMP     R3, R0
+			BLO     divu_done      
+
+			SUBS    R3, R3, R2
+			ADDS    R2, R2, #1     
+			
+			ENDP
+
+divu_done	PROC {}
+			MOV     R0, R2           
+			MOV     R1, R3           
+			MOVS    R2, #0
+
+			MSR     APSR_nzcvq, R2 ; move value from R2 to APSR register
+			POP     {R2, R3}
+			BX      LR
+			ENDP
 ;>>>>>   end subroutine code <<<<<
             ALIGN
 ;****************************************************************
