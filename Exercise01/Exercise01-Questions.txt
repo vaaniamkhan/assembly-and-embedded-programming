@@ -1,0 +1,6 @@
+Understanding Assembler Listing Files
+
+1)  0000000A
+    0000000B
+    00000010
+    0000000A
